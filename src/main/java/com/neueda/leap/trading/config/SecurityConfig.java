@@ -11,13 +11,16 @@ public class SecurityConfig {
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Phase 1 scaffold: keep health/version reachable while the JWT fixture
-        // authentication and role model are implemented. Trading/admin resources
-        // must not be added to this permit list.
+        // Public market reference data is available during the first vertical
+        // slice. Client account/trading and admin resources remain protected.
         return http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/api/v1/version").permitAll()
+                        .requestMatchers(
+                                "/actuator/health",
+                                "/api/v1/version",
+                                "/api/v1/instruments/**")
+                        .permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .build();
