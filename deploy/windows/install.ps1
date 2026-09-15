@@ -32,7 +32,8 @@ $env:DB_URL = 'jdbc:postgresql://localhost:5432/trading_demo'
 $env:DB_USERNAME = 'trading_demo'
 $env:DB_PASSWORD = 'trading_demo_change_me'
 $env:KAFKA_BOOTSTRAP_SERVERS = 'LINUX_VM_HOSTNAME_OR_IP:9092'
-$env:SERVER_PORT = '8080'
+# 8080 is commonly occupied on the Neueda Windows VM; use 8081 by default.
+$env:SERVER_PORT = '8081'
 '@ | Set-Content -Encoding UTF8 $ConfigFile
     Write-Host "==> Created $ConfigFile"
     Write-Host '    Edit DB credentials and the Linux VM Kafka hostname/IP before deploying.'
