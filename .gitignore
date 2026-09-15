@@ -5,3 +5,6 @@ target/
 .DS_Store
 .env
 *.log
+logs/
+*.pid
+deploy/windows/vm.env.ps1
