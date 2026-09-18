@@ -1,7 +1,7 @@
 package com.neueda.leap.trading.execution;
 
 import java.time.Instant;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectMapper;
 import com.neueda.leap.trading.order.OutboxEvent;
 import com.neueda.leap.trading.order.OutboxEventRepository;
 import org.springframework.kafka.core.KafkaTemplate;
