@@ -16,6 +16,4 @@ public class AdminUserController {
     @PostMapping public UserResponse create(@Valid @RequestBody CreateAdminUserRequest request){return identity.createAdmin(request);}
     @PatchMapping("/{id}/status") public UserResponse status(@PathVariable UUID id,@RequestParam boolean active){return identity.setActive(id,active);}
     @PutMapping("/{id}/roles") public UserResponse roles(@PathVariable UUID id,@RequestBody List<String> roles){return identity.replaceRoles(id,roles);}
-    @PutMapping("/{id}/client/{clientId}") public UserResponse client(@PathVariable UUID id,@PathVariable UUID clientId){return identity.associateClient(id,clientId);}
-    @DeleteMapping("/{id}/client") public UserResponse clearClient(@PathVariable UUID id){return identity.clearClient(id);}
 }
