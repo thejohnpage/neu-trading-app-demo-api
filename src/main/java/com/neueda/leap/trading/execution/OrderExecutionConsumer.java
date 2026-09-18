@@ -1,6 +1,6 @@
 package com.neueda.leap.trading.execution;
 
-import com.fasterxml.jackson.databind.ObjectMapper; import org.springframework.kafka.annotation.KafkaListener; import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper; import org.springframework.kafka.annotation.KafkaListener; import org.springframework.stereotype.Component;
 @Component
 public class OrderExecutionConsumer {
  private final ObjectMapper json; private final OrderExecutionService execution;
