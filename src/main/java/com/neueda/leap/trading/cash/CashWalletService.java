@@ -11,10 +11,11 @@ import com.neueda.leap.trading.account.Account;
 import com.neueda.leap.trading.account.AccountRepository;
 import com.neueda.leap.trading.api.ResourceNotFoundException;
 import com.neueda.leap.trading.client.CurrentClient;
+import com.neueda.leap.trading.instrument.Instrument;
+import com.neueda.leap.trading.instrument.InstrumentRepository;
 import com.neueda.leap.trading.marketdata.MarketDataService;
 import com.neueda.leap.trading.marketdata.QuoteResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -24,10 +25,12 @@ public class CashWalletService {
  private final CashBalanceRepository balances;
  private final CashTransactionRepository transactions;
  private final MarketDataService marketData;
+ private final InstrumentRepository instruments;
 
  public CashWalletService(CurrentClient currentClient,AccountRepository accounts,CashBalanceRepository balances,
-                          CashTransactionRepository transactions,MarketDataService marketData){
-  this.currentClient=currentClient;this.accounts=accounts;this.balances=balances;this.transactions=transactions;this.marketData=marketData;
+                          CashTransactionRepository transactions,MarketDataService marketData,InstrumentRepository instruments){
+  this.currentClient=currentClient;this.accounts=accounts;this.balances=balances;this.transactions=transactions;
+  this.marketData=marketData;this.instruments=instruments;
  }
 
  @Transactional
@@ -52,32 +55,23 @@ public class CashWalletService {
   return CashBalanceResponse.from(balance);
  }
 
- /*
-  * Do not run this method inside a read-only transaction. A failed direct-pair
-  * lookup is expected control flow when only the inverse instrument exists
-  * (for example USD/GBP when the fixture contains GBP/USD). Some persistence
-  * providers mark the current transaction rollback-only after a repository
-  * exception, which then turns a successful inverse lookup into a 500 at
-  * commit time. NOT_SUPPORTED keeps the two read lookups independent.
-  */
- @Transactional(propagation=Propagation.NOT_SUPPORTED)
+ @Transactional(readOnly=true)
  public FxRateResponse rate(String from,String to){
   String source=currency(from),target=currency(to);
   if(source.equals(target))return new FxRateResponse(source,target,BigDecimal.ONE,"IDENTITY",Instant.now());
 
-  QuoteResponse direct=findQuote(source+"/"+target);
-  if(direct!=null)return new FxRateResponse(source,target,direct.bid(),direct.source(),direct.quotedAt());
+  Instrument direct=instruments.findFirstBySymbolIgnoreCaseOrderByExchangeAsc(source+"/"+target).orElse(null);
+  if(direct!=null){
+   QuoteResponse q=marketData.getCurrentQuoteByInstrumentId(direct.getInstrumentId());
+   return new FxRateResponse(source,target,q.bid(),q.source(),q.quotedAt());
+  }
 
-  QuoteResponse inverse=findQuote(target+"/"+source);
+  Instrument inverse=instruments.findFirstBySymbolIgnoreCaseOrderByExchangeAsc(target+"/"+source).orElse(null);
   if(inverse==null)throw new ResourceNotFoundException("No FX market available for "+source+"/"+target);
 
-  BigDecimal rate=BigDecimal.ONE.divide(inverse.ask(),12,RoundingMode.HALF_UP);
-  return new FxRateResponse(source,target,rate,inverse.source(),inverse.quotedAt());
- }
-
- private QuoteResponse findQuote(String symbol){
-  try{return marketData.getCurrentQuote(symbol);}
-  catch(ResourceNotFoundException e){return null;}
+  QuoteResponse q=marketData.getCurrentQuoteByInstrumentId(inverse.getInstrumentId());
+  BigDecimal inverseRate=BigDecimal.ONE.divide(q.ask(),12,RoundingMode.HALF_UP);
+  return new FxRateResponse(source,target,inverseRate,q.source(),q.quotedAt());
  }
 
  @Transactional
@@ -106,7 +100,8 @@ public class CashWalletService {
  }
 
  private CashBalance balance(UUID accountId,String currency,Instant now){
-  return balances.findById(new CashBalanceId(accountId,currency)).orElseGet(() -> balances.save(CashBalance.open(accountId,currency,now)));
+  return balances.findById(new CashBalanceId(accountId,currency))
+      .orElseGet(() -> balances.save(CashBalance.open(accountId,currency,now)));
  }
 
  private Account ownedActiveAccount(UUID accountId){
