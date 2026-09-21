@@ -9,16 +9,12 @@ public record PositionResponse(
         UUID instrumentId,
         String symbol,
         String instrumentType,
+        String currency,
         BigDecimal quantity,
+        BigDecimal currentPrice,
+        BigDecimal marketValue,
+        BigDecimal costBasis,
+        BigDecimal unrealizedGainLoss,
+        BigDecimal unrealizedGainLossPercent,
         Instant updatedAt) {
-
-    public static PositionResponse from(Position position) {
-        return new PositionResponse(
-                position.getAccountId(),
-                position.getInstrumentId(),
-                position.getInstrument().getSymbol(),
-                position.getInstrument().getInstrumentType(),
-                position.getQuantity(),
-                position.getUpdatedAt());
-    }
 }
