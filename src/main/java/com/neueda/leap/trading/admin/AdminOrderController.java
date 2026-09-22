@@ -5,15 +5,20 @@ import io.swagger.v3.oas.annotations.Operation; import io.swagger.v3.oas.annotat
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name="Admin Orders",description="Administrative inspection of orders, lifecycle events and pricing decisions")
+/** Exposes administrative order inspection, lifecycle, and pricing endpoints. */
 @RestController @RequestMapping("/api/v1/admin/orders")
 public class AdminOrderController {
  private final AdminOrderService service; public AdminOrderController(AdminOrderService service){this.service=service;}
+ /** List all orders. */
  @Operation(summary="List all orders",description="Returns orders across client accounts for authorized internal users.")
  @GetMapping public List<OrderResponse> findAll(){return service.findAll();}
+ /** Get an order. */
  @Operation(summary="Get an order",description="Returns a single order for administrative inspection.")
  @GetMapping("/{orderId}") public OrderResponse findOne(@PathVariable UUID orderId){return service.findOne(orderId);}
+ /** Get order lifecycle. */
  @Operation(summary="Get order lifecycle",description="Returns the permanent lifecycle events for an order.")
  @GetMapping("/{orderId}/events") public List<OrderEventResponse> lifecycle(@PathVariable UUID orderId){return service.lifecycle(orderId);}
+ /** Get pricing decision. */
  @Operation(summary="Get pricing decision",description="Returns the quote and execution pricing information recorded for an order.")
  @GetMapping("/{orderId}/pricing") public Map<String,Object> pricing(@PathVariable UUID orderId){return service.pricing(orderId);}
 }
