@@ -5,12 +5,18 @@ import io.swagger.v3.oas.annotations.Operation; import io.swagger.v3.oas.annotat
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name="Admin Reporting",description="Warehouse-backed business and trading reports")
+/** Exposes warehouse-backed administrative reporting endpoints. */
 @RestController @RequestMapping("/api/v1/admin/reports")
 public class ReportingController {
  private final ReportingService reports; public ReportingController(ReportingService reports){this.reports=reports;}
+ /** Get reporting summary. */
  @Operation(summary="Get reporting summary",description="Returns high-level trading and warehouse metrics.") @GetMapping("/summary") public Map<String,Object> summary(){return reports.summary();}
+ /** Get trading activity. */
  @Operation(summary="Get trading activity",description="Returns recent completed trade activity from the reporting read model.") @GetMapping("/activity") public List<Map<String,Object>> activity(){return reports.activity();}
+ /** Get instrument report. */
  @Operation(summary="Get instrument report",description="Aggregates trading activity by instrument.") @GetMapping("/instruments") public List<Map<String,Object>> instruments(){return reports.instruments();}
+ /** Get client segment report. */
  @Operation(summary="Get client segment report",description="Aggregates trading activity by client segment.") @GetMapping("/client-segments") public List<Map<String,Object>> clientSegments(){return reports.clientSegments();}
+ /** Get trading volume. */
  @Operation(summary="Get trading volume",description="Returns trading volume aggregated by date.") @GetMapping("/volume") public List<Map<String,Object>> volume(){return reports.volume();}
 }
