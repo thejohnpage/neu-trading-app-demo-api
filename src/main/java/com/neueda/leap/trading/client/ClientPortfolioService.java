@@ -30,14 +30,14 @@ public class ClientPortfolioService {
     /** Returns accounts owned by the current client. */
     public List<AccountResponse> accounts(){
         return mapper.accounts(currentClient.clientId()).stream()
-                .map(a -> new AccountResponse(a.accountId(),a.accountNumber(),a.baseCurrency(),a.status()))
+                .map(a -> new AccountResponse(a.getAccountId(),a.getAccountNumber(),a.getBaseCurrency(),a.getStatus()))
                 .toList();
     }
 
     /** Returns cash balances owned by the current client. */
     public List<CashBalanceResponse> cash(){
         return mapper.cash(currentClient.clientId()).stream()
-                .map(c -> new CashBalanceResponse(c.accountId(),c.currency(),c.balance(),c.updatedAt()))
+                .map(c -> new CashBalanceResponse(c.getAccountId(),c.getCurrency(),c.getBalance(),c.getUpdatedAt()))
                 .toList();
     }
 
@@ -46,12 +46,12 @@ public class ClientPortfolioService {
         return mapper.positions(currentClient.clientId()).stream().map(this::value).toList();
     }
 
-    private PositionResponse value(ClientPortfolioMapper.PositionRow p){
-        BigDecimal marketValue=p.quantity().multiply(p.currentPrice()).setScale(8,RoundingMode.HALF_UP);
-        BigDecimal gain=marketValue.subtract(p.costBasis()).setScale(8,RoundingMode.HALF_UP);
-        BigDecimal gainPct=p.costBasis().signum()==0?BigDecimal.ZERO:
-                gain.multiply(BigDecimal.valueOf(100)).divide(p.costBasis(),8,RoundingMode.HALF_UP);
-        return new PositionResponse(p.accountId(),p.instrumentId(),p.symbol(),p.instrumentType(),p.currency(),
-                p.quantity(),p.currentPrice(),marketValue,p.costBasis(),gain,gainPct,p.updatedAt());
+    private PositionResponse value(PositionRow p){
+        BigDecimal marketValue=p.getQuantity().multiply(p.getCurrentPrice()).setScale(8,RoundingMode.HALF_UP);
+        BigDecimal gain=marketValue.subtract(p.getCostBasis()).setScale(8,RoundingMode.HALF_UP);
+        BigDecimal gainPct=p.getCostBasis().signum()==0?BigDecimal.ZERO:
+                gain.multiply(BigDecimal.valueOf(100)).divide(p.getCostBasis(),8,RoundingMode.HALF_UP);
+        return new PositionResponse(p.getAccountId(),p.getInstrumentId(),p.getSymbol(),p.getInstrumentType(),p.getCurrency(),
+                p.getQuantity(),p.getCurrentPrice(),marketValue,p.getCostBasis(),gain,gainPct,p.getUpdatedAt());
     }
 }
