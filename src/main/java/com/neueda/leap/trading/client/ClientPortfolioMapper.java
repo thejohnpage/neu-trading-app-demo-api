@@ -7,8 +7,6 @@ import java.util.UUID;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.ConstructorArgs;
 import org.apache.ibatis.annotations.Arg;
 
@@ -31,7 +29,7 @@ public interface ClientPortfolioMapper {
         ORDER BY account_number
         """)
     @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class),
+        @Arg(column="accountid",javaType=UUID.class,id=true),
         @Arg(column="accountnumber",javaType=String.class),
         @Arg(column="basecurrency",javaType=String.class),
         @Arg(column="status",javaType=String.class)
@@ -47,10 +45,10 @@ public interface ClientPortfolioMapper {
         ORDER BY cb.account_id, cb.currency
         """)
     @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class),
+        @Arg(column="accountid",javaType=UUID.class,id=true),
         @Arg(column="currency",javaType=String.class),
         @Arg(column="balance",javaType=BigDecimal.class),
-        @Arg(column="updatedat",javaType=Instant.class)
+        @Arg(column="updatedat",javaType=Instant.class,typeHandler=org.apache.ibatis.type.InstantTypeHandler.class)
     })
     List<CashRow> cash(@Param("clientId") UUID clientId);
 
@@ -74,15 +72,15 @@ public interface ClientPortfolioMapper {
         ORDER BY p.account_id, i.symbol
         """)
     @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class),
-        @Arg(column="instrumentid",javaType=UUID.class),
+        @Arg(column="accountid",javaType=UUID.class,id=true),
+        @Arg(column="instrumentid",javaType=UUID.class,id=true),
         @Arg(column="symbol",javaType=String.class),
         @Arg(column="instrumenttype",javaType=String.class),
         @Arg(column="currency",javaType=String.class),
         @Arg(column="quantity",javaType=BigDecimal.class),
         @Arg(column="costbasis",javaType=BigDecimal.class),
         @Arg(column="currentprice",javaType=BigDecimal.class),
-        @Arg(column="updatedat",javaType=Instant.class)
+        @Arg(column="updatedat",javaType=Instant.class,typeHandler=org.apache.ibatis.type.InstantTypeHandler.class)
     })
     List<PositionRow> positions(@Param("clientId") UUID clientId);
 
