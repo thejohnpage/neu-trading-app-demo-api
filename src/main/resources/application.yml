@@ -12,6 +12,8 @@ spring:
     properties:
       hibernate:
         default_schema: trading
+  mybatis:
+    type-handlers-package: com.neueda.leap.trading.config
   flyway:
     enabled: true
     locations: classpath:db/migration
