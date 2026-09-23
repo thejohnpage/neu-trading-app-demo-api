@@ -20,7 +20,7 @@ public interface ClientPortfolioMapper {
         SELECT account_id AS accountId, account_number AS accountNumber,
                base_currency AS baseCurrency, status
         FROM trading.accounts
-        WHERE client_id = #{clientId}
+        WHERE client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
         ORDER BY account_number
         """)
     List<AccountRow> accounts(@Param("clientId") UUID clientId);
@@ -30,7 +30,7 @@ public interface ClientPortfolioMapper {
         SELECT cb.account_id AS accountId, cb.currency, cb.balance, cb.updated_at AS updatedAt
         FROM trading.cash_balances cb
         JOIN trading.accounts a ON a.account_id = cb.account_id
-        WHERE a.client_id = #{clientId}
+        WHERE a.client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
         ORDER BY cb.account_id, cb.currency
         """)
     List<CashRow> cash(@Param("clientId") UUID clientId);
@@ -52,7 +52,7 @@ public interface ClientPortfolioMapper {
             ORDER BY mq.quoted_at DESC
             LIMIT 1
         ) q ON TRUE
-        WHERE a.client_id = #{clientId}
+        WHERE a.client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
         ORDER BY p.account_id, i.symbol
         """)
     List<PositionRow> positions(@Param("clientId") UUID clientId);
