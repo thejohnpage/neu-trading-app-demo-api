@@ -38,8 +38,8 @@ public class CashWalletService {
   validateMovement(request); Account account=ownedActiveAccount(request.accountId());
   String currency=currency(request.currency()); Instant now=Instant.now();
   CashBalance balance=balance(account.getAccountId(),currency,now);
-  balance.apply(request.amount(),now);
-  transactions.save(CashTransaction.movement(account.getAccountId(),currency,request.amount(),"DEPOSIT",now));
+  balance.apply(request.amount(),now); if(balances.update(balance)!=1) throw new IllegalStateException("Concurrent cash update");
+  transactions.insert(CashTransaction.movement(account.getAccountId(),currency,request.amount(),"DEPOSIT",now));
   return CashBalanceResponse.from(balance);
  }
 
@@ -47,11 +47,11 @@ public class CashWalletService {
  public CashBalanceResponse withdraw(CashMovementRequest request){
   validateMovement(request); Account account=ownedActiveAccount(request.accountId());
   String currency=currency(request.currency()); Instant now=Instant.now();
-  CashBalance balance=balances.findById(new CashBalanceId(account.getAccountId(),currency))
+  CashBalance balance=balances.find(account.getAccountId(),currency)
       .orElseThrow(() -> new IllegalArgumentException("No cash balance in "+currency));
   if(balance.getBalance().compareTo(request.amount())<0)throw new IllegalArgumentException("Insufficient cash in "+currency);
-  balance.apply(request.amount().negate(),now);
-  transactions.save(CashTransaction.movement(account.getAccountId(),currency,request.amount().negate(),"WITHDRAWAL",now));
+  balance.apply(request.amount().negate(),now); if(balances.update(balance)!=1) throw new IllegalStateException("Concurrent cash update");
+  transactions.insert(CashTransaction.movement(account.getAccountId(),currency,request.amount().negate(),"WITHDRAWAL",now));
   return CashBalanceResponse.from(balance);
  }
 
@@ -82,14 +82,14 @@ public class CashWalletService {
   String from=currency(request.fromCurrency()),to=currency(request.toCurrency());
   if(from.equals(to))throw new IllegalArgumentException("Source and target currencies must differ");
   FxRateResponse fx=rate(from,to); Instant now=Instant.now();
-  CashBalance source=balances.findById(new CashBalanceId(account.getAccountId(),from))
+  CashBalance source=balances.find(account.getAccountId(),from)
       .orElseThrow(() -> new IllegalArgumentException("No cash balance in "+from));
   if(source.getBalance().compareTo(request.amount())<0)throw new IllegalArgumentException("Insufficient cash in "+from);
   BigDecimal credited=request.amount().multiply(fx.rate()).setScale(8,RoundingMode.HALF_UP);
   CashBalance target=balance(account.getAccountId(),to,now);
-  source.apply(request.amount().negate(),now); target.apply(credited,now);
-  transactions.save(CashTransaction.movement(account.getAccountId(),from,request.amount().negate(),"FX_DEBIT",now));
-  transactions.save(CashTransaction.movement(account.getAccountId(),to,credited,"FX_CREDIT",now));
+  source.apply(request.amount().negate(),now); target.apply(credited,now); if(balances.update(source)!=1||balances.update(target)!=1) throw new IllegalStateException("Concurrent cash update");
+  transactions.insert(CashTransaction.movement(account.getAccountId(),from,request.amount().negate(),"FX_DEBIT",now));
+  transactions.insert(CashTransaction.movement(account.getAccountId(),to,credited,"FX_CREDIT",now));
   return new CashConversionResponse(from,to,request.amount(),credited,fx.rate(),fx.source());
  }
 
@@ -100,9 +100,11 @@ public class CashWalletService {
  }
 
  private CashBalance balance(UUID accountId,String currency,Instant now){
-  return balances.findById(new CashBalanceId(accountId,currency))
-      .orElseGet(() -> balances.save(CashBalance.open(accountId,currency,now)));
+  return balances.find(accountId,currency)
+      .orElseGet(() -> createBalance(accountId,currency,now));
  }
+
+ private CashBalance createBalance(UUID accountId,String currency,Instant now){CashBalance b=CashBalance.open(accountId,currency,now);balances.insert(b);return b;}
 
  private Account ownedActiveAccount(UUID accountId){
   Account a=accounts.findByAccountIdAndClientId(accountId,currentClient.clientId())
