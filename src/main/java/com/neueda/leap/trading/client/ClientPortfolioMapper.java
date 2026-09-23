@@ -43,11 +43,11 @@ public interface ClientPortfolioMapper {
         SELECT p.account_id AS accountId, p.instrument_id AS instrumentId,
                i.symbol, i.instrument_type AS instrumentType, i.quote_currency AS currency,
                p.quantity, p.cost_basis AS costBasis, p.updated_at AS updatedAt,
-               q.bid_price AS currentPrice
+               COALESCE(q.bid_price, 0) AS currentPrice
         FROM trading.positions p
         JOIN trading.accounts a ON a.account_id = p.account_id
         JOIN trading.instruments i ON i.instrument_id = p.instrument_id
-        JOIN LATERAL (
+        LEFT JOIN LATERAL (
             SELECT mq.bid_price
             FROM trading.market_quotes mq
             WHERE mq.instrument_id = p.instrument_id
