@@ -1,21 +1,16 @@
 package com.neueda.leap.trading.client;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
-import org.apache.ibatis.annotations.ConstructorArgs;
-import org.apache.ibatis.annotations.Arg;
 
 /**
  * MyBatis read mapper for the client portfolio.
  *
- * <p>The trading command side remains JPA-backed so aggregate updates continue
- * to use optimistic locking, while portfolio/read-model queries use explicit
- * SQL through MyBatis.</p>
+ * <p>Result objects are conventional JavaBeans so MyBatis can use predictable
+ * setter-based property mapping rather than record-constructor inference.</p>
  */
 @Mapper
 public interface ClientPortfolioMapper {
@@ -28,12 +23,6 @@ public interface ClientPortfolioMapper {
         WHERE client_id = #{clientId}
         ORDER BY account_number
         """)
-    @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class,id=true),
-        @Arg(column="accountnumber",javaType=String.class),
-        @Arg(column="basecurrency",javaType=String.class),
-        @Arg(column="status",javaType=String.class)
-    })
     List<AccountRow> accounts(@Param("clientId") UUID clientId);
 
     /** Returns cash balances for all accounts owned by a client. */
@@ -44,20 +33,15 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY cb.account_id, cb.currency
         """)
-    @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class,id=true),
-        @Arg(column="currency",javaType=String.class),
-        @Arg(column="balance",javaType=BigDecimal.class),
-        @Arg(column="updatedat",javaType=Instant.class,typeHandler=org.apache.ibatis.type.InstantTypeHandler.class)
-    })
     List<CashRow> cash(@Param("clientId") UUID clientId);
 
-    /** Returns positions together with the latest bid used for portfolio valuation. */
+    /** Returns positions together with the latest available bid quote. */
     @Select("""
         SELECT p.account_id AS accountId, p.instrument_id AS instrumentId,
                i.symbol, i.instrument_type AS instrumentType, i.quote_currency AS currency,
-               p.quantity, p.cost_basis AS costBasis, p.updated_at AS updatedAt,
-               COALESCE(q.bid_price, 0) AS currentPrice
+               p.quantity, p.cost_basis AS costBasis,
+               COALESCE(q.bid_price, 0) AS currentPrice,
+               p.updated_at AS updatedAt
         FROM trading.positions p
         JOIN trading.accounts a ON a.account_id = p.account_id
         JOIN trading.instruments i ON i.instrument_id = p.instrument_id
@@ -71,24 +55,5 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY p.account_id, i.symbol
         """)
-    @ConstructorArgs({
-        @Arg(column="accountid",javaType=UUID.class,id=true),
-        @Arg(column="instrumentid",javaType=UUID.class,id=true),
-        @Arg(column="symbol",javaType=String.class),
-        @Arg(column="instrumenttype",javaType=String.class),
-        @Arg(column="currency",javaType=String.class),
-        @Arg(column="quantity",javaType=BigDecimal.class),
-        @Arg(column="costbasis",javaType=BigDecimal.class),
-        @Arg(column="currentprice",javaType=BigDecimal.class),
-        @Arg(column="updatedat",javaType=Instant.class,typeHandler=org.apache.ibatis.type.InstantTypeHandler.class)
-    })
     List<PositionRow> positions(@Param("clientId") UUID clientId);
-
-    /** Lightweight account projection returned by MyBatis. */
-    record AccountRow(UUID accountId,String accountNumber,String baseCurrency,String status) {}
-    /** Lightweight cash projection returned by MyBatis. */
-    record CashRow(UUID accountId,String currency,BigDecimal balance,Instant updatedAt) {}
-    /** Lightweight valued-position source row returned by MyBatis. */
-    record PositionRow(UUID accountId,UUID instrumentId,String symbol,String instrumentType,String currency,
-                       BigDecimal quantity,BigDecimal costBasis,BigDecimal currentPrice,Instant updatedAt) {}
 }
