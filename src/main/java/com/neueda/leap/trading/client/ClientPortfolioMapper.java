@@ -7,6 +7,8 @@ import java.util.UUID;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Results;
+import org.apache.ibatis.annotations.Result;
 
 /**
  * MyBatis read mapper for the client portfolio.
@@ -26,6 +28,12 @@ public interface ClientPortfolioMapper {
         WHERE client_id = #{clientId}
         ORDER BY account_number
         """)
+    @Results({
+        @Result(column="accountid",property="accountId"),
+        @Result(column="accountnumber",property="accountNumber"),
+        @Result(column="basecurrency",property="baseCurrency"),
+        @Result(column="status",property="status")
+    })
     List<AccountRow> accounts(@Param("clientId") UUID clientId);
 
     /** Returns cash balances for all accounts owned by a client. */
@@ -36,6 +44,12 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY cb.account_id, cb.currency
         """)
+    @Results({
+        @Result(column="accountid",property="accountId"),
+        @Result(column="currency",property="currency"),
+        @Result(column="balance",property="balance"),
+        @Result(column="updatedat",property="updatedAt")
+    })
     List<CashRow> cash(@Param("clientId") UUID clientId);
 
     /** Returns positions together with the latest bid used for portfolio valuation. */
@@ -57,6 +71,17 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY p.account_id, i.symbol
         """)
+    @Results({
+        @Result(column="accountid",property="accountId"),
+        @Result(column="instrumentid",property="instrumentId"),
+        @Result(column="symbol",property="symbol"),
+        @Result(column="instrumenttype",property="instrumentType"),
+        @Result(column="currency",property="currency"),
+        @Result(column="quantity",property="quantity"),
+        @Result(column="costbasis",property="costBasis"),
+        @Result(column="currentprice",property="currentPrice"),
+        @Result(column="updatedat",property="updatedAt")
+    })
     List<PositionRow> positions(@Param("clientId") UUID clientId);
 
     /** Lightweight account projection returned by MyBatis. */
