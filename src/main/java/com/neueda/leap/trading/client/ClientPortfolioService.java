@@ -3,55 +3,55 @@ package com.neueda.leap.trading.client;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
-import com.neueda.leap.trading.account.Account;
-import com.neueda.leap.trading.account.AccountRepository;
 import com.neueda.leap.trading.account.AccountResponse;
-import com.neueda.leap.trading.cash.CashBalanceRepository;
 import com.neueda.leap.trading.cash.CashBalanceResponse;
-import com.neueda.leap.trading.marketdata.MarketDataService;
-import com.neueda.leap.trading.marketdata.QuoteResponse;
-import com.neueda.leap.trading.position.Position;
-import com.neueda.leap.trading.position.PositionRepository;
 import com.neueda.leap.trading.position.PositionResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Builds the client portfolio read model from explicit MyBatis queries.
+ *
+ * <p>Financial calculations use {@link BigDecimal}; no floating-point
+ * arithmetic is used for market value or unrealized profit/loss.</p>
+ */
 @Service
 @Transactional(readOnly = true)
 public class ClientPortfolioService {
-    private final CurrentClient currentClient; private final AccountRepository accountRepository;
-    private final CashBalanceRepository cashBalanceRepository; private final PositionRepository positionRepository;
-    private final MarketDataService marketData;
+    private final CurrentClient currentClient;
+    private final ClientPortfolioMapper mapper;
 
-    public ClientPortfolioService(CurrentClient currentClient,AccountRepository accountRepository,CashBalanceRepository cashBalanceRepository,
-                                  PositionRepository positionRepository,MarketDataService marketData) {
-        this.currentClient=currentClient;this.accountRepository=accountRepository;this.cashBalanceRepository=cashBalanceRepository;
-        this.positionRepository=positionRepository;this.marketData=marketData;
+    /** Creates the portfolio service. */
+    public ClientPortfolioService(CurrentClient currentClient,ClientPortfolioMapper mapper){
+        this.currentClient=currentClient;this.mapper=mapper;
     }
 
-    public List<AccountResponse> accounts(){return ownedAccounts().stream().map(AccountResponse::from).toList();}
-    public List<CashBalanceResponse> cash(){Set<UUID> ids=ownedAccountIds();if(ids.isEmpty())return List.of();return cashBalanceRepository.findByAccountIdInOrderByAccountIdAscCurrencyAsc(ids).stream().map(CashBalanceResponse::from).toList();}
+    /** Returns accounts owned by the current client. */
+    public List<AccountResponse> accounts(){
+        return mapper.accounts(currentClient.clientId()).stream()
+                .map(a -> new AccountResponse(a.accountId(),a.accountNumber(),a.baseCurrency(),a.status()))
+                .toList();
+    }
 
+    /** Returns cash balances owned by the current client. */
+    public List<CashBalanceResponse> cash(){
+        return mapper.cash(currentClient.clientId()).stream()
+                .map(c -> new CashBalanceResponse(c.accountId(),c.currency(),c.balance(),c.updatedAt()))
+                .toList();
+    }
+
+    /** Returns current positions valued at the latest bid quote. */
     public List<PositionResponse> positions(){
-        Set<UUID> ids=ownedAccountIds();if(ids.isEmpty())return List.of();
-        return positionRepository.findByAccountIdInOrderByAccountIdAscInstrumentIdAsc(ids).stream().map(this::value).toList();
+        return mapper.positions(currentClient.clientId()).stream().map(this::value).toList();
     }
 
-    private PositionResponse value(Position p){
-        QuoteResponse q=marketData.getCurrentQuoteByInstrumentId(p.getInstrumentId());
-        BigDecimal currentPrice=q.bid();
-        BigDecimal marketValue=p.getQuantity().multiply(currentPrice).setScale(8,RoundingMode.HALF_UP);
-        BigDecimal cost=p.getCostBasis();
-        BigDecimal gain=marketValue.subtract(cost).setScale(8,RoundingMode.HALF_UP);
-        BigDecimal gainPct=cost.signum()==0?BigDecimal.ZERO:gain.multiply(BigDecimal.valueOf(100)).divide(cost,8,RoundingMode.HALF_UP);
-        return new PositionResponse(p.getAccountId(),p.getInstrumentId(),p.getInstrument().getSymbol(),p.getInstrument().getInstrumentType(),
-                p.getInstrument().getQuoteCurrency(),p.getQuantity(),currentPrice,marketValue,cost,gain,gainPct,p.getUpdatedAt());
+    private PositionResponse value(ClientPortfolioMapper.PositionRow p){
+        BigDecimal marketValue=p.quantity().multiply(p.currentPrice()).setScale(8,RoundingMode.HALF_UP);
+        BigDecimal gain=marketValue.subtract(p.costBasis()).setScale(8,RoundingMode.HALF_UP);
+        BigDecimal gainPct=p.costBasis().signum()==0?BigDecimal.ZERO:
+                gain.multiply(BigDecimal.valueOf(100)).divide(p.costBasis(),8,RoundingMode.HALF_UP);
+        return new PositionResponse(p.accountId(),p.instrumentId(),p.symbol(),p.instrumentType(),p.currency(),
+                p.quantity(),p.currentPrice(),marketValue,p.costBasis(),gain,gainPct,p.updatedAt());
     }
-
-    private List<Account> ownedAccounts(){return accountRepository.findByClientIdOrderByAccountNumber(currentClient.clientId());}
-    private Set<UUID> ownedAccountIds(){return ownedAccounts().stream().map(Account::getAccountId).collect(Collectors.toSet());}
 }
