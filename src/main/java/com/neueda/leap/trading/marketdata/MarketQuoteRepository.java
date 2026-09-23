@@ -14,7 +14,7 @@ import java.util.Optional; import java.util.UUID; import org.apache.ibatis.annot
           q.received_at receivedAt
    FROM trading.market_quotes q
    JOIN trading.instruments i ON i.instrument_id=q.instrument_id
-   WHERE q.instrument_id=#{instrumentId}
+   WHERE q.instrument_id=#{instrumentId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
    ORDER BY q.quoted_at DESC
    LIMIT 1
    """)
