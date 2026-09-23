@@ -9,6 +9,8 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ConstructorArgs;
+import org.apache.ibatis.annotations.Arg;
 
 /**
  * MyBatis read mapper for the client portfolio.
@@ -28,11 +30,11 @@ public interface ClientPortfolioMapper {
         WHERE client_id = #{clientId}
         ORDER BY account_number
         """)
-    @Results({
-        @Result(column="accountid",property="accountId"),
-        @Result(column="accountnumber",property="accountNumber"),
-        @Result(column="basecurrency",property="baseCurrency"),
-        @Result(column="status",property="status")
+    @ConstructorArgs({
+        @Arg(column="accountid",javaType=UUID.class),
+        @Arg(column="accountnumber",javaType=String.class),
+        @Arg(column="basecurrency",javaType=String.class),
+        @Arg(column="status",javaType=String.class)
     })
     List<AccountRow> accounts(@Param("clientId") UUID clientId);
 
@@ -44,11 +46,11 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY cb.account_id, cb.currency
         """)
-    @Results({
-        @Result(column="accountid",property="accountId"),
-        @Result(column="currency",property="currency"),
-        @Result(column="balance",property="balance"),
-        @Result(column="updatedat",property="updatedAt")
+    @ConstructorArgs({
+        @Arg(column="accountid",javaType=UUID.class),
+        @Arg(column="currency",javaType=String.class),
+        @Arg(column="balance",javaType=BigDecimal.class),
+        @Arg(column="updatedat",javaType=Instant.class)
     })
     List<CashRow> cash(@Param("clientId") UUID clientId);
 
@@ -71,16 +73,16 @@ public interface ClientPortfolioMapper {
         WHERE a.client_id = #{clientId}
         ORDER BY p.account_id, i.symbol
         """)
-    @Results({
-        @Result(column="accountid",property="accountId"),
-        @Result(column="instrumentid",property="instrumentId"),
-        @Result(column="symbol",property="symbol"),
-        @Result(column="instrumenttype",property="instrumentType"),
-        @Result(column="currency",property="currency"),
-        @Result(column="quantity",property="quantity"),
-        @Result(column="costbasis",property="costBasis"),
-        @Result(column="currentprice",property="currentPrice"),
-        @Result(column="updatedat",property="updatedAt")
+    @ConstructorArgs({
+        @Arg(column="accountid",javaType=UUID.class),
+        @Arg(column="instrumentid",javaType=UUID.class),
+        @Arg(column="symbol",javaType=String.class),
+        @Arg(column="instrumenttype",javaType=String.class),
+        @Arg(column="currency",javaType=String.class),
+        @Arg(column="quantity",javaType=BigDecimal.class),
+        @Arg(column="costbasis",javaType=BigDecimal.class),
+        @Arg(column="currentprice",javaType=BigDecimal.class),
+        @Arg(column="updatedat",javaType=Instant.class)
     })
     List<PositionRow> positions(@Param("clientId") UUID clientId);
 
