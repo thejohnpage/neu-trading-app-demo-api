@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;public record UpdateUserProfileRequest(String firstName,String lastName,String email,String jobTitle,String department,String phone,String timezone,String notes){}
