@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;import java.time.Instant;import java.util.UUID;public record ClientAdminResponse(UUID clientId,String email,String firstName,String lastName,String clientSegment,boolean active,Instant createdAt){} 
