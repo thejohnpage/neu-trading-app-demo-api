@@ -17,8 +17,8 @@ public interface ClientPortfolioMapper {
 
     /** Returns accounts owned by a client in account-number order. */
     @Select("""
-        SELECT account_id AS accountId, account_number AS accountNumber,
-               base_currency AS baseCurrency, status
+        SELECT account_id, account_number,
+               base_currency, status
         FROM trading.accounts
         WHERE client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
         ORDER BY account_number
@@ -27,7 +27,7 @@ public interface ClientPortfolioMapper {
 
     /** Returns cash balances for all accounts owned by a client. */
     @Select("""
-        SELECT cb.account_id AS accountId, cb.currency, cb.balance, cb.updated_at AS updatedAt
+        SELECT cb.account_id, cb.currency, cb.balance, cb.updated_at
         FROM trading.cash_balances cb
         JOIN trading.accounts a ON a.account_id = cb.account_id
         WHERE a.client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
@@ -37,11 +37,11 @@ public interface ClientPortfolioMapper {
 
     /** Returns positions together with the latest available bid quote. */
     @Select("""
-        SELECT p.account_id AS accountId, p.instrument_id AS instrumentId,
-               i.symbol, i.instrument_type AS instrumentType, i.quote_currency AS currency,
-               p.quantity, p.cost_basis AS costBasis,
-               COALESCE(q.bid_price, 0) AS currentPrice,
-               p.updated_at AS updatedAt
+        SELECT p.account_id, p.instrument_id,
+               i.symbol, i.instrument_type, i.quote_currency AS currency,
+               p.quantity, p.cost_basis,
+               COALESCE(q.bid_price, 0) AS current_price,
+               p.updated_at
         FROM trading.positions p
         JOIN trading.accounts a ON a.account_id = p.account_id
         JOIN trading.instruments i ON i.instrument_id = p.instrument_id
