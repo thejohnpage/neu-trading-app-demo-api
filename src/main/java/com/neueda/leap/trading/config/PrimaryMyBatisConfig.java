@@ -27,7 +27,8 @@ import org.springframework.context.annotation.Configuration;
         "com.neueda.leap.trading.order",
         "com.neueda.leap.trading.position"
     },
-    sqlSessionFactoryRef = "sqlSessionFactory"
+    sqlSessionFactoryRef = "sqlSessionFactory",
+    annotationClass = org.apache.ibatis.annotations.Mapper.class
 )
 public class PrimaryMyBatisConfig {
  @Bean(name="sqlSessionFactory")
