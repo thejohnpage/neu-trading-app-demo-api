@@ -29,4 +29,8 @@ import java.time.Instant; import java.util.*; import org.apache.ibatis.annotatio
  @Delete("DELETE FROM identity.role_capabilities WHERE role_id=#{roleId}") int deleteRoleCapabilities(long roleId);
  @Insert("INSERT INTO identity.role_capabilities(role_id,capability_id) SELECT #{roleId},capability_id FROM identity.capabilities WHERE capability_name=#{capability}") int insertRoleCapability(@Param("roleId")long roleId,@Param("capability")String capability);
  @Select("SELECT COUNT(*) FROM identity.roles WHERE role_name=#{role}") int roleNameCount(String role);
+ @Select("SELECT client_id clientId,email,first_name firstName,last_name lastName,client_segment clientSegment,active,created_at createdAt FROM identity.clients ORDER BY last_name,first_name,email") List<ClientAdminResponse> clients();
+ @Select("SELECT client_id clientId,email,first_name firstName,last_name lastName,client_segment clientSegment,active,created_at createdAt FROM identity.clients WHERE client_id=#{id,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}") Optional<ClientAdminResponse> client(UUID id);
+ @Update("UPDATE identity.clients SET email=#{r.email},first_name=#{r.firstName},last_name=#{r.lastName},client_segment=#{r.clientSegment},active=#{r.active} WHERE client_id=#{id,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}") int updateClient(@Param("id")UUID id,@Param("r")UpdateClientRequest r);
+ @Select("SELECT segment_code segmentCode,display_name displayName,description,active FROM identity.client_segments WHERE active=true ORDER BY display_name") List<ClientSegmentResponse> clientSegments();
 }
