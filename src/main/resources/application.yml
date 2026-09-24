@@ -2,8 +2,8 @@ spring:
   application:
     name: neu-trading-app-demo-api
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/trading}
-    username: ${DB_USERNAME:trading}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/trading_demo}
+    username: ${DB_USERNAME:trading_demo}
     password: ${DB_PASSWORD:trading}
   flyway:
     enabled: true
