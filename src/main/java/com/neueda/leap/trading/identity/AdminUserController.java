@@ -19,4 +19,7 @@ public class AdminUserController {
  @Operation(summary="Change user status",description="Activates or deactivates an internal platform user.") @PatchMapping("/{id}/status") public UserResponse status(@PathVariable UUID id,@RequestParam boolean active){return identity.setActive(id,active);}
  /** Replace user roles. */
  @Operation(summary="Replace user roles",description="Replaces the complete role set assigned to an internal platform user.") @PutMapping("/{id}/roles") public UserResponse roles(@PathVariable UUID id,@RequestBody List<String> roles){return identity.replaceRoles(id,roles);}
+ @Operation(summary="Get user profile") @GetMapping("/{id}/profile") public UserProfileResponse profile(@PathVariable UUID id){return identity.profile(id);}
+ @Operation(summary="Edit user profile") @PutMapping("/{id}/profile") public UserResponse profile(@PathVariable UUID id,@RequestBody UpdateUserProfileRequest request){return identity.updateProfile(id,request);}
 }
+
