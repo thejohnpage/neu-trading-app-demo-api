@@ -17,6 +17,7 @@ import org.springframework.web.cors.*;
     .requestMatchers("/api/v1/version","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html","/actuator/health","/actuator/info","/api/v1/registration/client").permitAll()
     .requestMatchers("/api/v1/admin/rbac/**").hasAuthority("CAP_ROLE_MANAGEMENT")
     .requestMatchers("/api/v1/admin/users/**").hasAuthority("CAP_USER_MANAGEMENT")
+    .requestMatchers("/api/v1/admin/clients/**").hasAuthority("CAP_CLIENT_MANAGEMENT")
     .requestMatchers("/api/v1/admin/orders/**").hasAuthority("CAP_ORDER_OPERATIONS")
     .requestMatchers("/api/v1/admin/audit/**").hasAuthority("CAP_AUDIT_VIEW")
     .requestMatchers("/api/v1/admin/reports/**").hasAuthority("CAP_REPORTING")
