@@ -7,6 +7,7 @@ import org.springframework.context.annotation.*;import com.neueda.leap.trading.a
    .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
    .authorizeHttpRequests(a->a
     .requestMatchers("/api/v1/version","/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html","/actuator/health","/actuator/info","/api/v1/registration/client").permitAll()
+    .requestMatchers("/api/v1/admin/users/**").hasAuthority("ROLE_SUPER_ADMIN")
     .requestMatchers("/api/v1/admin/**").hasAuthority("TYPE_ADMIN")
     .requestMatchers("/api/v1/me/**","/api/v1/orders/**").hasAuthority("TYPE_CLIENT")
     .requestMatchers("/api/v1/instruments/**").authenticated().anyRequest().authenticated())
