@@ -32,6 +32,7 @@ public class AuthValidationFilter extends OncePerRequestFilter {
    String sub=(String)v.get("sub"),type=(String)v.get("type");
    List<SimpleGrantedAuthority> authorities=new ArrayList<>();authorities.add(new SimpleGrantedAuthority("TYPE_"+type));
    Object roles=v.get("roles");if(roles instanceof List<?> list)for(Object role:list)authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
+   Object capabilities=v.get("capabilities");if(capabilities instanceof List<?> list)for(Object capability:list)authorities.add(new SimpleGrantedAuthority("CAP_"+capability));
    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(sub,null,authorities));
    req.setAttribute("authSubjectId",sub);req.setAttribute("authSubjectType",type);req.setAttribute("authSubjectEmail",v.get("email"));
    chain.doFilter(req,res);
