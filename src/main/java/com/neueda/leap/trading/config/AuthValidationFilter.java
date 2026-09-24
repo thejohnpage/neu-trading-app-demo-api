@@ -33,7 +33,7 @@ public class AuthValidationFilter extends OncePerRequestFilter {
    List<SimpleGrantedAuthority> authorities=new ArrayList<>();authorities.add(new SimpleGrantedAuthority("TYPE_"+type));
    Object roles=v.get("roles");if(roles instanceof List<?> list)for(Object role:list)authorities.add(new SimpleGrantedAuthority("ROLE_"+role));
    SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(sub,null,authorities));
-   req.setAttribute("authSubjectId",sub);req.setAttribute("authSubjectType",type);
+   req.setAttribute("authSubjectId",sub);req.setAttribute("authSubjectType",type);req.setAttribute("authSubjectEmail",v.get("email"));
    chain.doFilter(req,res);
   }catch(InterruptedException e){Thread.currentThread().interrupt();res.sendError(503,"Authentication service unavailable");}
    catch(Exception e){res.sendError(503,"Authentication service unavailable");}
