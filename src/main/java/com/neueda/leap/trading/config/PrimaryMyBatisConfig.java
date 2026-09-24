@@ -17,6 +17,7 @@ import org.springframework.context.annotation.Configuration;
 @MapperScan(
     basePackages = {
         "com.neueda.leap.trading.account",
+        "com.neueda.leap.trading.audit",
         "com.neueda.leap.trading.admin",
         "com.neueda.leap.trading.cash",
         "com.neueda.leap.trading.client",
