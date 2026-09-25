@@ -12,15 +12,4 @@ public record QuoteResponse(
         BigDecimal ask,
         String source,
         Instant quotedAt) {
-
-    public static QuoteResponse from(MarketQuote quote) {
-        return new QuoteResponse(
-                quote.getInstrument().getInstrumentId(),
-                quote.getInstrument().getSymbol(),
-                quote.getInstrument().getQuoteCurrency(),
-                quote.getBidPrice(),
-                quote.getAskPrice(),
-                quote.getSource(),
-                quote.getQuotedAt());
-    }
 }

@@ -1,53 +1,11 @@
 package com.neueda.leap.trading.marketdata;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.util.UUID;
-
-import com.neueda.leap.trading.instrument.Instrument;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "market_quotes", schema = "trading")
+import java.math.BigDecimal; import java.time.Instant; import java.util.UUID;
+/** Latest market quote projection loaded by MyBatis. */
 public class MarketQuote {
-
-    @Id
-    @Column(name = "quote_id", nullable = false)
-    private UUID quoteId;
-
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "instrument_id", nullable = false)
-    private Instrument instrument;
-
-    @Column(name = "bid_price", nullable = false, precision = 20, scale = 8)
-    private BigDecimal bidPrice;
-
-    @Column(name = "ask_price", nullable = false, precision = 20, scale = 8)
-    private BigDecimal askPrice;
-
-    @Column(nullable = false, length = 100)
-    private String source;
-
-    @Column(name = "quoted_at", nullable = false)
-    private Instant quotedAt;
-
-    @Column(name = "received_at", nullable = false)
-    private Instant receivedAt;
-
-    protected MarketQuote() {
-    }
-
-    public UUID getQuoteId() { return quoteId; }
-    public Instrument getInstrument() { return instrument; }
-    public BigDecimal getBidPrice() { return bidPrice; }
-    public BigDecimal getAskPrice() { return askPrice; }
-    public String getSource() { return source; }
-    public Instant getQuotedAt() { return quotedAt; }
-    public Instant getReceivedAt() { return receivedAt; }
+ private UUID quoteId; private UUID instrumentId; private String symbol; private String quoteCurrency; private BigDecimal bidPrice; private BigDecimal askPrice; private String source; private Instant quotedAt; private Instant receivedAt;
+ public MarketQuote(){}
+ public UUID getQuoteId(){return quoteId;} public void setQuoteId(UUID v){quoteId=v;} public UUID getInstrumentId(){return instrumentId;} public void setInstrumentId(UUID v){instrumentId=v;}
+ public String getSymbol(){return symbol;} public void setSymbol(String v){symbol=v;} public String getQuoteCurrency(){return quoteCurrency;} public void setQuoteCurrency(String v){quoteCurrency=v;}
+ public BigDecimal getBidPrice(){return bidPrice;} public void setBidPrice(BigDecimal v){bidPrice=v;} public BigDecimal getAskPrice(){return askPrice;} public void setAskPrice(BigDecimal v){askPrice=v;}
+ public String getSource(){return source;} public void setSource(String v){source=v;} public Instant getQuotedAt(){return quotedAt;} public void setQuotedAt(Instant v){quotedAt=v;} public Instant getReceivedAt(){return receivedAt;} public void setReceivedAt(Instant v){receivedAt=v;}
 }

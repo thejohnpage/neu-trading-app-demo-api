@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;import java.time.Instant;import java.util.UUID;public record UserProfileResponse(UUID userId,String jobTitle,String department,String phone,String timezone,String notes,Instant updatedAt){} 

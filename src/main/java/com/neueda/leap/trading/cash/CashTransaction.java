@@ -1,10 +1,10 @@
 package com.neueda.leap.trading.cash;
-import java.math.BigDecimal; import java.time.Instant; import java.util.UUID; import jakarta.persistence.*;
-@Entity @Table(name="cash_transactions",schema="trading")
+import java.math.BigDecimal; import java.time.Instant; import java.util.UUID;
+/** Immutable cash-ledger transaction persisted by MyBatis. */
 public class CashTransaction {
- @Id @Column(name="cash_transaction_id") private UUID id; @Column(name="account_id",nullable=false) private UUID accountId;
- @Column(name="order_id") private UUID orderId; @Column(nullable=false,length=10) private String currency;
- @Column(nullable=false,precision=20,scale=8) private BigDecimal amount;
- @Column(name="transaction_type",nullable=false,length=30) private String type; @Column(name="created_at",nullable=false) private Instant createdAt;
- protected CashTransaction(){} public static CashTransaction trade(UUID accountId,UUID orderId,String currency,BigDecimal amount,String type,Instant now){CashTransaction t=new CashTransaction();t.id=UUID.randomUUID();t.accountId=accountId;t.orderId=orderId;t.currency=currency;t.amount=amount;t.type=type;t.createdAt=now;return t;}
+ private UUID id; private UUID accountId; private UUID orderId; private String currency; private BigDecimal amount; private String type; private Instant createdAt;
+ public CashTransaction(){}
+ public static CashTransaction trade(UUID a,UUID o,String c,BigDecimal amount,String type,Instant now){return create(a,o,c,amount,type,now);} public static CashTransaction movement(UUID a,String c,BigDecimal amount,String type,Instant now){return create(a,null,c,amount,type,now);}
+ private static CashTransaction create(UUID a,UUID o,String c,BigDecimal amount,String type,Instant now){CashTransaction t=new CashTransaction();t.id=UUID.randomUUID();t.accountId=a;t.orderId=o;t.currency=c;t.amount=amount;t.type=type;t.createdAt=now;return t;}
+ public UUID getId(){return id;} public void setId(UUID v){id=v;} public UUID getAccountId(){return accountId;} public void setAccountId(UUID v){accountId=v;} public UUID getOrderId(){return orderId;} public void setOrderId(UUID v){orderId=v;} public String getCurrency(){return currency;} public void setCurrency(String v){currency=v;} public BigDecimal getAmount(){return amount;} public void setAmount(BigDecimal v){amount=v;} public String getType(){return type;} public void setType(String v){type=v;} public Instant getCreatedAt(){return createdAt;} public void setCreatedAt(Instant v){createdAt=v;}
 }

@@ -6,5 +6,5 @@ public class MarketDataService {
  private final InstrumentService instruments; private final MarketQuoteRepository quotes;
  public MarketDataService(InstrumentService instruments,MarketQuoteRepository quotes){this.instruments=instruments;this.quotes=quotes;}
  public QuoteResponse getCurrentQuote(String symbol){Instrument i=instruments.findEntityBySymbol(symbol);return getCurrentQuoteByInstrumentId(i.getInstrumentId());}
- public QuoteResponse getCurrentQuoteByInstrumentId(UUID instrumentId){MarketQuote q=quotes.findFirstByInstrumentInstrumentIdOrderByQuotedAtDesc(instrumentId).orElseThrow(() -> new ResourceNotFoundException("No quote available for instrument: "+instrumentId));return QuoteResponse.from(q);}
+ public QuoteResponse getCurrentQuoteByInstrumentId(UUID instrumentId){MarketQuote q=quotes.findLatest(instrumentId).orElseThrow(() -> new ResourceNotFoundException("No quote available for instrument: "+instrumentId));return new QuoteResponse(q.getInstrumentId(),q.getSymbol(),q.getQuoteCurrency(),q.getBidPrice(),q.getAskPrice(),q.getSource(),q.getQuotedAt());}
 }

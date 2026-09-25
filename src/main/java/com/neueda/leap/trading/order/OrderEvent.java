@@ -1,11 +1,8 @@
 package com.neueda.leap.trading.order;
-
-import java.time.Instant; import java.util.UUID; import jakarta.persistence.*; import org.hibernate.annotations.JdbcTypeCode; import org.hibernate.type.SqlTypes;
-@Entity @Table(name="order_events",schema="trading")
+import java.time.Instant; import java.util.UUID;
+/** Order lifecycle event persisted by MyBatis. */
 public class OrderEvent {
- @Id @GeneratedValue(strategy=GenerationType.IDENTITY) @Column(name="order_event_id") private Long orderEventId;
- @Column(name="order_id",nullable=false) private UUID orderId; @Column(name="event_type",nullable=false,length=30) private String eventType;
- @Column(name="event_time",nullable=false) private Instant eventTime; @JdbcTypeCode(SqlTypes.JSON) @Column(nullable=false,columnDefinition="jsonb") private String details;
- protected OrderEvent(){} public static OrderEvent of(UUID orderId,String eventType,Instant time){OrderEvent e=new OrderEvent();e.orderId=orderId;e.eventType=eventType;e.eventTime=time;e.details="{}";return e;}
- public Long getOrderEventId(){return orderEventId;} public UUID getOrderId(){return orderId;} public String getEventType(){return eventType;} public Instant getEventTime(){return eventTime;} public String getDetails(){return details;}
+ private Long orderEventId; private UUID orderId; private String eventType; private Instant eventTime; private String details;
+ public OrderEvent(){} public static OrderEvent of(UUID id,String type,Instant time){OrderEvent e=new OrderEvent();e.orderId=id;e.eventType=type;e.eventTime=time;e.details="{}";return e;}
+ public Long getOrderEventId(){return orderEventId;} public void setOrderEventId(Long v){orderEventId=v;} public UUID getOrderId(){return orderId;} public void setOrderId(UUID v){orderId=v;} public String getEventType(){return eventType;} public void setEventType(String v){eventType=v;} public Instant getEventTime(){return eventTime;} public void setEventTime(Instant v){eventTime=v;} public String getDetails(){return details;} public void setDetails(String v){details=v;}
 }
