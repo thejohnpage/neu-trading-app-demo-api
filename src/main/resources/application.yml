@@ -36,3 +36,4 @@ mybatis:
 app:
   auth:
     mode: ${AUTH_MODE:jwt}
+    validation-url: ${AUTH_VALIDATION_URL:http://localhost:3001/api/v1/auth/validate}
