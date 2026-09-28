@@ -20,6 +20,7 @@ import org.springframework.web.cors.*;
     .requestMatchers("/api/v1/admin/clients/**").hasAuthority("CAP_CLIENT_MANAGEMENT")
     .requestMatchers("/api/v1/admin/orders/**").hasAuthority("CAP_ORDER_OPERATIONS")
     .requestMatchers("/api/v1/admin/audit/**").hasAuthority("CAP_AUDIT_VIEW")
+    .requestMatchers("/api/v1/admin/kafka/**").hasAuthority("CAP_KAFKA_MONITORING")
     .requestMatchers("/api/v1/admin/reports/**").hasAuthority("CAP_REPORTING")
     .requestMatchers("/api/v1/admin/**").hasAuthority("CAP_USER_MANAGEMENT")
     .requestMatchers("/api/v1/me/**","/api/v1/orders/**").hasAuthority("TYPE_CLIENT")
