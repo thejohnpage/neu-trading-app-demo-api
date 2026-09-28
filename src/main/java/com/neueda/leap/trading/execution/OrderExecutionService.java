@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service; import org.springframework.transa
 public class OrderExecutionService {
  private final OrderRepository orders; private final FillRepository fills; private final MarketDataService marketData;
  private final PricingDecisionRepository pricing; private final CashBalanceRepository cash; private final CashTransactionRepository cashTx;
- private final PositionRepository positions; private final OrderEventRepository events;
- public OrderExecutionService(OrderRepository orders,FillRepository fills,MarketDataService marketData,PricingDecisionRepository pricing,CashBalanceRepository cash,CashTransactionRepository cashTx,PositionRepository positions,OrderEventRepository events){this.orders=orders;this.fills=fills;this.marketData=marketData;this.pricing=pricing;this.cash=cash;this.cashTx=cashTx;this.positions=positions;this.events=events;}
+ private final PositionRepository positions; private final OrderEventRepository events; private final OrderStatusPublisher statusPublisher;
+ public OrderExecutionService(OrderRepository orders,FillRepository fills,MarketDataService marketData,PricingDecisionRepository pricing,CashBalanceRepository cash,CashTransactionRepository cashTx,PositionRepository positions,OrderEventRepository events,OrderStatusPublisher statusPublisher){this.orders=orders;this.fills=fills;this.marketData=marketData;this.pricing=pricing;this.cash=cash;this.cashTx=cashTx;this.positions=positions;this.events=events;this.statusPublisher=statusPublisher;}
 
  @Transactional
  public void execute(UUID orderId){
@@ -36,5 +36,6 @@ public class OrderExecutionService {
 
   fills.insert(Fill.create(orderId,order.getQuantity(),executionPrice,now)); order.markFilled(now); if(orders.update(order)!=1)throw new IllegalStateException("Concurrent order update");
   events.insert(OrderEvent.of(orderId,"PRICED",now)); events.insert(OrderEvent.of(orderId,"FILLED",now));
+  statusPublisher.publish(new OrderStatusMessage(orderId,order.getAccountId(),order.getInstrumentId(),order.getSide(),order.getQuantity(),"FILLED",executionPrice,now));
  }
 }
