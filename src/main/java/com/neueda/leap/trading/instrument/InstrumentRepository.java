@@ -5,4 +5,6 @@ import java.util.*; import org.apache.ibatis.annotations.*;
  String COLS="instrument_id instrumentId,symbol,instrument_type instrumentType,exchange,base_currency baseCurrency,quote_currency quoteCurrency,name,tradable,created_at createdAt";
  @Select("SELECT "+COLS+" FROM trading.instruments ORDER BY symbol") List<Instrument> findAllByOrderBySymbolAsc();
  @Select("SELECT "+COLS+" FROM trading.instruments WHERE lower(symbol)=lower(#{symbol}) ORDER BY exchange NULLS FIRST LIMIT 1") Optional<Instrument> findFirstBySymbolIgnoreCaseOrderByExchangeAsc(String symbol);
+ @Select("SELECT "+COLS+" FROM trading.instruments WHERE instrument_id=#{id,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}") Optional<Instrument> findById(UUID id);
 }
+
