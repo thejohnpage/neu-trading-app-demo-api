@@ -45,21 +45,21 @@ public class OrderService {
         QuoteResponse quote=marketData.getCurrentQuote(instrument.getSymbol());
         if (side.equals("BUY")) {
             BigDecimal required=request.quantity().multiply(quote.ask());
-            BigDecimal available=cash.findById(new CashBalanceId(account.getAccountId(), quote.quoteCurrency()))
+            BigDecimal available=cash.find(account.getAccountId(), quote.quoteCurrency())
                     .orElseThrow(() -> new OrderRejectedException("No cash balance in " + quote.quoteCurrency())).getBalance();
             if (available.compareTo(required)<0) throw new OrderRejectedException("Insufficient cash");
         } else {
-            BigDecimal held=positions.findById(new PositionId(account.getAccountId(), instrument.getInstrumentId()))
+            BigDecimal held=positions.find(account.getAccountId(), instrument.getInstrumentId())
                     .map(p -> p.getQuantity()).orElse(BigDecimal.ZERO);
             if (held.compareTo(request.quantity())<0) throw new OrderRejectedException("Insufficient holding");
         }
 
         Instant now=Instant.now();
-        Order order=orders.save(Order.accepted(account.getAccountId(), instrument.getInstrumentId(), side, request.quantity(), now));
+        Order order=Order.accepted(account.getAccountId(), instrument.getInstrumentId(), side, request.quantity(), now); orders.insert(order);
         // Preserve both lifecycle facts even though validation and acceptance occur in one synchronous request.
-        events.save(OrderEvent.of(order.getOrderId(), "SUBMITTED", now));
-        events.save(OrderEvent.of(order.getOrderId(), "ACCEPTED", now));
-        outbox.save(OutboxEvent.orderAccepted(order, now));
+        events.insert(OrderEvent.of(order.getOrderId(), "SUBMITTED", now));
+        events.insert(OrderEvent.of(order.getOrderId(), "ACCEPTED", now));
+        outbox.insert(OutboxEvent.orderAccepted(order, now));
         return OrderResponse.from(order);
     }
 }

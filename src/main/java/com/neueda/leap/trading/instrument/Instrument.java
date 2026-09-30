@@ -1,55 +1,11 @@
 package com.neueda.leap.trading.instrument;
-
-import java.time.Instant;
-import java.util.UUID;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "instruments", schema = "trading")
+import java.time.Instant; import java.util.UUID;
+/** Tradable instrument domain object persisted by MyBatis. */
 public class Instrument {
-
-    @Id
-    @Column(name = "instrument_id", nullable = false)
-    private UUID instrumentId;
-
-    @Column(nullable = false, length = 30)
-    private String symbol;
-
-    @Column(name = "instrument_type", nullable = false, length = 20)
-    private String instrumentType;
-
-    @Column(length = 30)
-    private String exchange;
-
-    @Column(name = "base_currency", length = 10)
-    private String baseCurrency;
-
-    @Column(name = "quote_currency", nullable = false, length = 10)
-    private String quoteCurrency;
-
-    @Column(nullable = false, length = 255)
-    private String name;
-
-    @Column(nullable = false)
-    private boolean tradable;
-
-    @Column(name = "created_at", nullable = false)
-    private Instant createdAt;
-
-    protected Instrument() {
-    }
-
-    public UUID getInstrumentId() { return instrumentId; }
-    public String getSymbol() { return symbol; }
-    public String getInstrumentType() { return instrumentType; }
-    public String getExchange() { return exchange; }
-    public String getBaseCurrency() { return baseCurrency; }
-    public String getQuoteCurrency() { return quoteCurrency; }
-    public String getName() { return name; }
-    public boolean isTradable() { return tradable; }
-    public Instant getCreatedAt() { return createdAt; }
+ private UUID instrumentId; private String symbol; private String instrumentType; private String exchange; private String baseCurrency; private String quoteCurrency; private String name; private boolean tradable; private Instant createdAt;
+ public Instrument(){}
+ public UUID getInstrumentId(){return instrumentId;} public void setInstrumentId(UUID v){instrumentId=v;} public String getSymbol(){return symbol;} public void setSymbol(String v){symbol=v;}
+ public String getInstrumentType(){return instrumentType;} public void setInstrumentType(String v){instrumentType=v;} public String getExchange(){return exchange;} public void setExchange(String v){exchange=v;}
+ public String getBaseCurrency(){return baseCurrency;} public void setBaseCurrency(String v){baseCurrency=v;} public String getQuoteCurrency(){return quoteCurrency;} public void setQuoteCurrency(String v){quoteCurrency=v;}
+ public String getName(){return name;} public void setName(String v){name=v;} public boolean isTradable(){return tradable;} public void setTradable(boolean v){tradable=v;} public Instant getCreatedAt(){return createdAt;} public void setCreatedAt(Instant v){createdAt=v;}
 }

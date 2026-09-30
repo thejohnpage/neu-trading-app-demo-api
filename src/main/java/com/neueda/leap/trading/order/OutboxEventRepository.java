@@ -1,5 +1,8 @@
 package com.neueda.leap.trading.order;
-import java.util.List; import java.util.UUID; import org.springframework.data.jpa.repository.JpaRepository;
-public interface OutboxEventRepository extends JpaRepository<OutboxEvent,UUID>{
- List<OutboxEvent> findTop50ByPublishedAtIsNullOrderByCreatedAtAsc();
+import java.util.*; import org.apache.ibatis.annotations.*;
+/** MyBatis mapper for the transactional outbox. */
+@Mapper public interface OutboxEventRepository {
+ @Insert("INSERT INTO trading.outbox_events(event_id,aggregate_type,aggregate_id,event_type,payload,created_at,published_at) VALUES(#{eventId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler},#{aggregateType},#{aggregateId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler},#{eventType},CAST(#{payload} AS jsonb),#{createdAt},#{publishedAt})") int insert(OutboxEvent e);
+ @Select("SELECT event_id eventId,aggregate_type aggregateType,aggregate_id aggregateId,event_type eventType,payload::text payload,created_at createdAt,published_at publishedAt FROM trading.outbox_events WHERE published_at IS NULL ORDER BY created_at LIMIT 50") List<OutboxEvent> findUnpublished();
+ @Update("UPDATE trading.outbox_events SET published_at=#{publishedAt} WHERE event_id=#{eventId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler} AND published_at IS NULL") int markPublished(OutboxEvent e);
 }

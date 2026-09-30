@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;public record ClientSegmentResponse(String segmentCode,String displayName,String description,boolean active){} 

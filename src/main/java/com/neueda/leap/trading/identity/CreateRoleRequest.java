@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;import java.util.List;public record CreateRoleRequest(String roleName,String description,List<String> capabilities){} 

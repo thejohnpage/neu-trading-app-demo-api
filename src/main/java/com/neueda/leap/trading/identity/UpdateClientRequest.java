@@ -1,0 +1,1 @@
+package com.neueda.leap.trading.identity;public record UpdateClientRequest(String email,String firstName,String lastName,String clientSegment,boolean active){} 

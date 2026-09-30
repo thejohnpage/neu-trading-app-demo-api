@@ -25,6 +25,10 @@ public class ApiExceptionHandler {
                 .map(f -> f.getField()+": "+f.getDefaultMessage()).orElse("Invalid request");
         return error(HttpStatus.BAD_REQUEST,"Bad Request",message);
     }
+    @ExceptionHandler(IllegalArgumentException.class)
+    ResponseEntity<Map<String,Object>> handleBadRequest(IllegalArgumentException e){
+        return error(HttpStatus.BAD_REQUEST,"Bad Request",e.getMessage());
+    }
     private ResponseEntity<Map<String,Object>> error(HttpStatus status,String error,String message){
         return ResponseEntity.status(status).body(Map.of("timestamp",Instant.now().toString(),
                 "status",status.value(),"error",error,"message",message));

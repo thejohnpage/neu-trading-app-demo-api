@@ -1,0 +1,4 @@
+package com.neueda.leap.trading.identity;
+import java.time.Instant; import java.util.UUID;
+/** MyBatis result object for an internal user. */
+public class IdentityUserRow {private UUID userId;private String email,firstName,lastName;private boolean active;private Instant createdAt,updatedAt;public IdentityUserRow(){} public UUID getUserId(){return userId;}public void setUserId(UUID v){userId=v;}public String getEmail(){return email;}public void setEmail(String v){email=v;}public String getFirstName(){return firstName;}public void setFirstName(String v){firstName=v;}public String getLastName(){return lastName;}public void setLastName(String v){lastName=v;}public boolean isActive(){return active;}public void setActive(boolean v){active=v;}public Instant getCreatedAt(){return createdAt;}public void setCreatedAt(Instant v){createdAt=v;}public Instant getUpdatedAt(){return updatedAt;}public void setUpdatedAt(Instant v){updatedAt=v;}}
