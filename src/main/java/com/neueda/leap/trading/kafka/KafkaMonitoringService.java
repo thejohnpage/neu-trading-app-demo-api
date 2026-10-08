@@ -1,6 +1,7 @@
 package com.neueda.leap.trading.kafka;
 
 import java.util.*;
+import java.util.function.Function;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -13,11 +14,13 @@ import org.springframework.stereotype.Service;
 public class KafkaMonitoringService {
  private static final long TIMEOUT_SECONDS=5;
  private final String bootstrap;
- public KafkaMonitoringService(@Value("${spring.kafka.bootstrap-servers}")String bootstrap){this.bootstrap=bootstrap;}
+ private final Function<Properties,AdminClient> adminFactory;
+ public KafkaMonitoringService(@Value("${spring.kafka.bootstrap-servers}")String bootstrap){this(bootstrap,AdminClient::create);}
+ KafkaMonitoringService(String bootstrap,Function<Properties,AdminClient> adminFactory){this.bootstrap=bootstrap;this.adminFactory=adminFactory;}
 
  public KafkaStatusResponse status(){
   Properties p=new Properties();p.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrap);
-  try(AdminClient admin=AdminClient.create(p)){
+  try(AdminClient admin=adminFactory.apply(p)){
    String clusterId=admin.describeCluster().clusterId().get(TIMEOUT_SECONDS,TimeUnit.SECONDS);
    int brokers=admin.describeCluster().nodes().get(TIMEOUT_SECONDS,TimeUnit.SECONDS).size();
    Set<String> names=admin.listTopics().names().get(TIMEOUT_SECONDS,TimeUnit.SECONDS);
