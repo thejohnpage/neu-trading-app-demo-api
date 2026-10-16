@@ -6,6 +6,7 @@ import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import java.util.concurrent.TimeUnit;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +16,7 @@ public class KafkaMonitoringService {
  private static final long TIMEOUT_SECONDS=5;
  private final String bootstrap;
  private final Function<Properties,AdminClient> adminFactory;
+ @Autowired
  public KafkaMonitoringService(@Value("${spring.kafka.bootstrap-servers}")String bootstrap){this(bootstrap,AdminClient::create);}
  KafkaMonitoringService(String bootstrap,Function<Properties,AdminClient> adminFactory){this.bootstrap=bootstrap;this.adminFactory=adminFactory;}
 
