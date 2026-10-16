@@ -14,10 +14,6 @@ public class ClientPortfolioController {
  public ClientPortfolioController(ClientPortfolioService portfolioService){this.portfolioService=portfolioService;}
  /** List my accounts. */
  @Operation(summary="List my accounts",description="Returns trading accounts owned by the authenticated client.") @GetMapping("/accounts") public List<AccountResponse> accounts(){return portfolioService.accounts();}
- /** Open another immediately active USD brokerage account. */
- @Operation(summary="Open another account",description="Creates an active USD brokerage account for the authenticated client with a zero cash balance.")
- @PostMapping("/accounts") @ResponseStatus(HttpStatus.CREATED)
- public AccountResponse createAccount(){return portfolioService.createAccount();}
  /** Get my cash balances. */
  @Operation(summary="Get my cash balances",description="Returns current cash balances by account and currency.") @GetMapping("/cash") public List<CashBalanceResponse> cash(){return portfolioService.cash();}
  /** Get my positions. */
