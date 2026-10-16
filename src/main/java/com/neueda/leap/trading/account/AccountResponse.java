@@ -6,13 +6,20 @@ public record AccountResponse(
         UUID accountId,
         String accountNumber,
         String baseCurrency,
-        String status) {
+        String status,
+        String accountName,
+        String accountType) {
+
+    public AccountResponse(UUID accountId, String accountNumber, String baseCurrency, String status) {
+        this(accountId, accountNumber, baseCurrency, status, accountNumber, "INDIVIDUAL");
+    }
+
 
     public static AccountResponse from(Account account) {
         return new AccountResponse(
                 account.getAccountId(),
                 account.getAccountNumber(),
                 account.getBaseCurrency(),
-                account.getStatus());
+                account.getStatus(), account.getAccountName(), account.getAccountType());
     }
 }
