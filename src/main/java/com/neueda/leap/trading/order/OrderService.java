@@ -37,6 +37,7 @@ public class OrderService {
     public OrderResponse submit(CreateOrderRequest request) {
         Account account=accounts.findByAccountIdAndClientId(request.accountId(), currentClient.clientId())
                 .orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+        if (!"ACTIVE".equals(account.getStatus())) throw new OrderRejectedException("Account is not active");
         Instrument instrument=instruments.findEntityBySymbol(request.symbol());
         if (!instrument.isTradable()) throw new OrderRejectedException("Instrument is not currently tradable");
         String side=request.side().toUpperCase(Locale.ROOT);
