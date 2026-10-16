@@ -3,6 +3,8 @@ package com.neueda.leap.trading.client;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.UUID;
+import com.neueda.leap.trading.identity.IdentityMapper;
 
 import com.neueda.leap.trading.account.AccountResponse;
 import com.neueda.leap.trading.cash.CashBalanceResponse;
@@ -21,10 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class ClientPortfolioService {
     private final CurrentClient currentClient;
     private final ClientPortfolioMapper mapper;
+    private final IdentityMapper identityMapper;
 
     /** Creates the portfolio service. */
-    public ClientPortfolioService(CurrentClient currentClient,ClientPortfolioMapper mapper){
-        this.currentClient=currentClient;this.mapper=mapper;
+    public ClientPortfolioService(CurrentClient currentClient,ClientPortfolioMapper mapper,IdentityMapper identityMapper){
+        this.currentClient=currentClient;this.mapper=mapper;this.identityMapper=identityMapper;
     }
 
     /** Returns accounts owned by the current client. */
@@ -32,6 +35,17 @@ public class ClientPortfolioService {
         return mapper.accounts(currentClient.clientId()).stream()
                 .map(a -> new AccountResponse(a.getAccountId(),a.getAccountNumber(),a.getBaseCurrency(),a.getStatus()))
                 .toList();
+    }
+
+    /** Creates an immediately active USD brokerage account for the authenticated client. */
+    @Transactional(readOnly = false)
+    public AccountResponse createAccount(){
+        UUID clientId = currentClient.clientId();
+        UUID accountId = UUID.randomUUID();
+        String number = "ACC-" + accountId.toString().substring(0, 8).toUpperCase();
+        identityMapper.insertAccount(accountId, clientId, number);
+        identityMapper.insertInitialCash(accountId);
+        return new AccountResponse(accountId, number, "USD", "ACTIVE");
     }
 
     /** Returns cash balances owned by the current client. */
