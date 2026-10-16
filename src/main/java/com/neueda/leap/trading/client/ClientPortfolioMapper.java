@@ -18,7 +18,7 @@ public interface ClientPortfolioMapper {
     /** Returns accounts owned by a client in account-number order. */
     @Select("""
         SELECT account_id, account_number,
-               base_currency, status
+               base_currency, status, account_name, account_type
         FROM trading.accounts
         WHERE client_id = #{clientId,typeHandler=com.neueda.leap.trading.config.PostgresUuidTypeHandler}
         ORDER BY account_number
