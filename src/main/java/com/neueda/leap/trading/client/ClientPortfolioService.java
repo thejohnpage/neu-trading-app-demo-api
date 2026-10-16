@@ -33,7 +33,7 @@ public class ClientPortfolioService {
     /** Returns accounts owned by the current client. */
     public List<AccountResponse> accounts(){
         return mapper.accounts(currentClient.clientId()).stream()
-                .map(a -> new AccountResponse(a.getAccountId(),a.getAccountNumber(),a.getBaseCurrency(),a.getStatus()))
+                .map(a -> new AccountResponse(a.getAccountId(),a.getAccountNumber(),a.getBaseCurrency(),a.getStatus(),a.getAccountName(),a.getAccountType()))
                 .toList();
     }
 
