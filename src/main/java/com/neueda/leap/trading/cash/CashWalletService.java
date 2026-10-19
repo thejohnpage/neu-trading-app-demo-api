@@ -67,11 +67,24 @@ public class CashWalletService {
   }
 
   Instrument inverse=instruments.findFirstBySymbolIgnoreCaseOrderByExchangeAsc(target+"/"+source).orElse(null);
-  if(inverse==null)throw new ResourceNotFoundException("No FX market available for "+source+"/"+target);
+  if(inverse!=null){
+   QuoteResponse q=marketData.getCurrentQuoteByInstrumentId(inverse.getInstrumentId());
+   if(q.ask()==null||q.ask().signum()<=0)throw new IllegalArgumentException("Invalid FX ask quote");
+   BigDecimal inverseRate=BigDecimal.ONE.divide(q.ask(),12,RoundingMode.HALF_UP);
+   return new FxRateResponse(source,target,inverseRate,q.source(),q.quotedAt());
+  }
 
-  QuoteResponse q=marketData.getCurrentQuoteByInstrumentId(inverse.getInstrumentId());
-  BigDecimal inverseRate=BigDecimal.ONE.divide(q.ask(),12,RoundingMode.HALF_UP);
-  return new FxRateResponse(source,target,inverseRate,q.source(),q.quotedAt());
+  // Resolve unsupported direct pairs via USD. The legs are each priced in
+  // their respective directions (bid or inverse ask) and never use doubles.
+  if(!source.equals("USD") && !target.equals("USD")){
+   FxRateResponse first=rate(source,"USD");
+   FxRateResponse second=rate("USD",target);
+   BigDecimal cross=first.rate().multiply(second.rate()).setScale(12,RoundingMode.HALF_UP);
+   Instant quotedAt=first.quotedAt().isBefore(second.quotedAt())?first.quotedAt():second.quotedAt();
+   return new FxRateResponse(source,target,cross,
+       "CROSS_USD["+first.source()+";"+second.source()+"]",quotedAt);
+  }
+  throw new ResourceNotFoundException("No FX market available for "+source+"/"+target);
  }
 
  @Transactional
