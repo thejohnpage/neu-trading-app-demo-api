@@ -13,7 +13,7 @@
 
     <groupId>com.neueda.leap</groupId>
     <artifactId>neu-trading-app-demo-api</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>NEU Trading App Demo API</name>
     <description>BRS-derived reference implementation for the LEAP direct trading platform</description>
 
